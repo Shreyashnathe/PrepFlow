@@ -59,10 +59,27 @@ const ResultDashboard = () => {
 
         <div style={styles.scoreOverview}>
           <div style={styles.scoreCard}>
-            <div style={styles.scoreRing}>
-              <span style={styles.mainScore}>{Math.round(report.totalScore)}%</span>
+            <div style={styles.scoreRingWrapper}>
+              <svg viewBox="0 0 160 160" width="160" height="160">
+                {/* Background track */}
+                <circle cx="80" cy="80" r="70" fill="none" stroke="var(--bg-card-hover)" strokeWidth="12" />
+                {/* Score Fill */}
+                <circle 
+                  cx="80" 
+                  cy="80" 
+                  r="70" 
+                  fill="none" 
+                  stroke="var(--primary)" 
+                  strokeWidth="12" 
+                  strokeDasharray="439.8" 
+                  strokeDashoffset={439.8 - (439.8 * (Math.round(report.totalScore) / 100))}
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dashoffset 1s ease-out', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
+                />
+              </svg>
+              <div style={styles.mainScoreText}>{Math.round(report.totalScore)}%</div>
             </div>
-            <p style={{marginTop: '1rem', color: 'var(--text-muted)'}}>Overall Assessment Score</p>
+            <p style={{marginTop: '1.5rem', color: 'var(--text-muted)'}}>Overall Assessment Score</p>
           </div>
 
           <div style={styles.roundsMatrix}>
@@ -167,28 +184,17 @@ const styles = {
     borderRadius: 'var(--border-radius)',
     border: '1px solid var(--bg-card-hover)',
   },
-  scoreRing: {
-    width: '150px',
-    height: '150px',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: `conic-gradient(var(--primary) 0%, var(--primary) 100%, transparent 100%)`, // Simulating full for now, logic can make it dynamic
+  scoreRingWrapper: {
     position: 'relative',
-    boxShadow: 'var(--shadow-neon)',
-  },
-  mainScore: {
-    position: 'absolute',
-    background: 'var(--bg-dark)',
-    width: '130px',
-    height: '130px',
-    borderRadius: '50%',
     display: 'flex',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainScoreText: {
+    position: 'absolute',
     fontSize: '2.5rem',
     fontWeight: '700',
+    color: 'var(--text-main)',
   },
   roundsMatrix: {
     flex: '2',

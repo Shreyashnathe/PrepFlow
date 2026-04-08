@@ -62,13 +62,16 @@ public class DataSeeder {
             questionRepository.saveAll(List.of(amzQ1, amzQ2));
 
             // Insert Mock Questions for TCS Ninja -> Aptitude
-            String optsApt = "[\"10\", \"12\", \"15\", \"20\"]";
-            Question tcsQ1 = Question.builder().questionText("If 5 men can complete a work in 10 days, in how many days can 10 men complete the same work?").options(optsApt).expectedAnswer("5").difficulty("Easy").simulationRound(tcsAptitude).build();
-            questionRepository.save(tcsQ1);
+            String optsApt = "[\"10 days\", \"12 days\", \"15 days\", \"20 days\"]";
+            Question tcsQ1 = Question.builder().questionText("If 5 men can complete a work in 10 days, in how many days can 10 men complete the same work?").options(optsApt).expectedAnswer("5 days").difficulty("Easy").simulationRound(tcsAptitude).build();
+            String optsApt2 = "[\"25\", \"50\", \"75\", \"100\"]";
+            Question tcsQ2 = Question.builder().questionText("What is 10% of 250?").options(optsApt2).expectedAnswer("25").difficulty("Easy").simulationRound(tcsAptitude).build();
+            questionRepository.saveAll(List.of(tcsQ1, tcsQ2));
             
             // Insert Mock Question for Amazon HR
-            Question hrQ1 = Question.builder().questionText("Tell me about a time you had to dive deep to solve a complex problem.").options(optionsEmpty).expectedAnswer("DIVE_DEEP").difficulty("Medium").simulationRound(amzHR).build();
-            questionRepository.save(hrQ1);
+            Question hrQ1 = Question.builder().questionText("Behavioral: Tell me about a time you had to dive deep to solve a complex problem without enough initial data.").options(optionsEmpty).expectedAnswer("STAR").difficulty("Medium").simulationRound(amzHR).build();
+            Question hrQ2 = Question.builder().questionText("Behavioral: Describe a situation where you disagreed with a team member. How did you handle it?").options(optionsEmpty).expectedAnswer("STAR").difficulty("Medium").simulationRound(amzHR).build();
+            questionRepository.saveAll(List.of(hrQ1, hrQ2));
         };
     }
 }

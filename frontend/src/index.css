@@ -89,3 +89,28 @@ button {
   background: var(--bg-card-hover);
   border-radius: 4px;
 }
+
+/* Glowing Orbs Background */
+.orb-1 {
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(15,23,42,0) 70%);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.orb-2 {
+  position: fixed;
+  bottom: -10%;
+  right: -10%;
+  width: 40vw;
+  height: 40vw;
+  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, rgba(15,23,42,0) 70%);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}

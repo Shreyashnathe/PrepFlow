@@ -55,7 +55,7 @@ public class EvaluationService {
         
         double score = 0.0;
         double maxScore = questions.size() * 10.0; // Assume 10 points per question
-        StringBuilder feedback = new StringBuilder();
+        StringBuilder feedback = new StringBuilder("Round Analysis:\n");
 
         for (Question q : questions) {
             String userAnswer = submissionDTO.getAnswers().get(q.getId());
@@ -80,6 +80,10 @@ public class EvaluationService {
                 }
             }
         }
+        
+        if (submissionDTO.getTimeTakenInSeconds() != null) {
+            feedback.append("\nTime Taken: ").append(submissionDTO.getTimeTakenInSeconds()).append("s");
+        }
 
         double percentage = maxScore > 0 ? (score / maxScore) * 100.0 : 0;
 
@@ -87,6 +91,7 @@ public class EvaluationService {
                 .userAttempt(attempt)
                 .simulationRound(round)
                 .score(percentage)
+                .timeTakenInSeconds(submissionDTO.getTimeTakenInSeconds())
                 .feedback(feedback.toString())
                 .userAnswers(objectMapper.writeValueAsString(submissionDTO.getAnswers()))
                 .submittedAt(LocalDateTime.now())
@@ -116,12 +121,16 @@ public class EvaluationService {
         if (attempt.getTotalScore() >= 80) readinessDesc = "READY";
         else if (attempt.getTotalScore() >= 50) readinessDesc = "ALMOST READY";
 
+        String finalFeedback = attempt.getTotalScore() >= 80 ? 
+            "Excellent performance! You demonstrate strong competency. Focus on mock interviews next." : 
+            "Needs improvement. We recommend revising weak concepts and practicing more problems before the actual test.";
+
         return AttemptReportDTO.builder()
                 .attemptId(attemptId)
                 .totalScore(attempt.getTotalScore())
                 .readinessLevel(readinessDesc)
                 .roundScores(roundScores)
-                .overallFeedback(attempt.getTotalScore() >= 80 ? "Excellent performance! Focus on mock interviews." : "Revise weak concepts and practice more problems.")
+                .overallFeedback(finalFeedback)
                 .build();
     }
 }

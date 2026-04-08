@@ -36,5 +36,7 @@ public class RoundAttempt {
     @Column(columnDefinition = "TEXT")
     private String feedback; // Evaluation feedback
 
+    private Integer timeTakenInSeconds;
+
     private LocalDateTime submittedAt;
 }

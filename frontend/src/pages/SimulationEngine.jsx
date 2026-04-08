@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchSimulationFlow, fetchQuestionsForRound, submitRound } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import { Clock, CheckCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import AptitudeRound from '../components/AptitudeRound';
 import CodingRound from '../components/CodingRound';
 import HRRound from '../components/HRRound';
@@ -64,8 +65,12 @@ const SimulationEngine = () => {
 
   const handleRoundSubmit = async (answers) => {
     const currentRound = simulationFlow[currentRoundIndex];
+    // Calculate time taken for this round (max time - time left)
+    const timeTakenInSeconds = 1800 - timeLeft;
+
     try {
-      await submitRound(attemptId, currentRound.id, answers);
+      await submitRound(attemptId, currentRound.id, { answers, timeTakenInSeconds });
+      toast.success(`${currentRound.roundType.replace('_', ' ')} submitted!`);
       
       if (currentRoundIndex < simulationFlow.length - 1) {
         // Move to next round
@@ -74,11 +79,12 @@ const SimulationEngine = () => {
         await loadQuestions(simulationFlow[nextIndex].id);
       } else {
         // Finished all rounds
+        toast.success("Simulation Complete!");
         navigate('/result');
       }
     } catch (e) {
       console.error(e);
-      alert("Failed to submit round");
+      toast.error("Failed to submit round");
     }
   };
 

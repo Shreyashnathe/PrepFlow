@@ -12,8 +12,8 @@ export const fetchQuestionsForRound = (roundId) => api.get(`/rounds/${roundId}/q
 export const startSimulation = (userId, roleId) => 
   api.post(`/attempts/start?userId=${userId}&roleId=${roleId}`);
 
-export const submitRound = (attemptId, roundId, answers) => 
-  api.post(`/attempts/${attemptId}/rounds/${roundId}/submit`, { answers });
+export const submitRound = (attemptId, roundId, payload) => 
+  api.post(`/attempts/${attemptId}/rounds/${roundId}/submit`, payload);
 
 export const fetchReport = (attemptId) => api.get(`/attempts/${attemptId}/report`);
 
