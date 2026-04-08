@@ -6,7 +6,7 @@ import { Briefcase, ChevronRight, Building } from 'lucide-react';
 
 const CompanySelection = () => {
   const navigate = useNavigate();
-  const { userId, setSelectedCompany, setSelectedRole, setAttemptId } = useAppContext();
+  const { setSelectedCompany, setSelectedRole, setAttemptId, userName, logoutUser } = useAppContext();
   const [companies, setCompanies] = useState([]);
   const [roles, setRoles] = useState([]);
   const [activeCompany, setActiveCompany] = useState(null);
@@ -31,18 +31,29 @@ const CompanySelection = () => {
     setLoading(true);
     setSelectedRole(role);
     try {
-      const res = await startSimulation(userId, role.id);
+      const res = await startSimulation(role.id);
       setAttemptId(res.data);
       navigate('/simulate');
     } catch (e) {
       console.error(e);
+      alert("Error starting simulation. Are you logged in?");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = () => {
+    logoutUser();
+    navigate('/login');
+  };
+
   return (
     <div style={styles.container}>
+      <div style={styles.topNav}>
+        <div style={styles.welcomeTag}>Hi, {userName || 'Candidate'} 👋</div>
+        <button className="btn-primary" style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+      </div>
+
       <div style={styles.hero}>
         <h1 className="gradient-text animate-fade-in" style={styles.title}>PrepFlow Simulator</h1>
         <p style={styles.subtitle}>Experience the exact hiring process of top companies.</p>
@@ -172,6 +183,23 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+  },
+  topNav: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '2rem',
+  },
+  welcomeTag: {
+    fontSize: '1.2rem',
+    fontWeight: '600',
+    color: 'var(--text-main)',
+  },
+  logoutBtn: {
+    background: 'rgba(239, 68, 68, 0.2)',
+    color: '#ef4444',
+    border: '1px solid rgba(239, 68, 68, 0.5)',
+    padding: '0.5rem 1rem',
   }
 };
 

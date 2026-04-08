@@ -32,9 +32,12 @@ public class SimulationController {
         return ResponseEntity.ok(companyFlowService.getQuestionsForRound(roundId));
     }
 
+    private final com.placement.prepflow.repository.UserRepository userRepository; // Inject repository
+
     @PostMapping("/attempts/start")
-    public ResponseEntity<Long> startSimulation(@RequestParam Long userId, @RequestParam Long roleId) {
-        return ResponseEntity.ok(evaluationService.startSimulation(userId, roleId));
+    public ResponseEntity<Long> startSimulation(@RequestParam Long roleId, java.security.Principal principal) {
+        com.placement.prepflow.entity.User user = userRepository.findByEmail(principal.getName()).orElseThrow(() -> new com.placement.prepflow.exception.ResourceNotFoundException("User not found"));
+        return ResponseEntity.ok(evaluationService.startSimulation(user.getId(), roleId));
     }
 
     @PostMapping("/attempts/{attemptId}/rounds/{roundId}/submit")
