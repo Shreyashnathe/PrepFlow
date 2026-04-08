@@ -1,0 +1,20 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# Maven
+target/
+*.jar
+*.war
+*.ear
+
+# Node
+node_modules/
+dist/
+.env*
+.DS_Store
+
+# Java
+*.class
