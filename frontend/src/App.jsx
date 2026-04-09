@@ -8,6 +8,7 @@ import SimulationEngine from './pages/SimulationEngine';
 import ResultDashboard from './pages/ResultDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './pages/UserProfile';
+import Chatbot from './components/Chatbot';
 import LandingPage from './pages/LandingPage';
 import './index.css';
 
@@ -21,8 +22,9 @@ function App() {
         },
       }}/>
       <Router>
-        <div className="orb-1"></div>
-        <div className="orb-2"></div>
+        <>
+          <div className="orb-1"></div>
+          <div className="orb-2"></div>
           <Routes>
             <Route path="/login" element={<div className="app-container"><Login /></div>} />
             <Route path="/home" element={
@@ -56,6 +58,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          <Chatbot />
+        </>
       </Router>
     </AppProvider>
   );
