@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Terminal, Code, Play, ChevronRight, Check } from 'lucide-react';
+import { Terminal, Code, Play, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import './RoundStyles.css';
 
 const CodingRound = ({ questions, onSubmit }) => {
   const [activeQId, setActiveQId] = useState(questions[0]?.id);
@@ -9,6 +10,22 @@ const CodingRound = ({ questions, onSubmit }) => {
 
   const activeQuestion = questions.find(q => q.id === activeQId);
 
+  // Attempt to parse JSON payload
+  let parsedDesc = {
+    title: activeQuestion?.questionText || 'Coding Assignment',
+    description: activeQuestion?.questionText || '',
+    constraints: '',
+    testcases: []
+  };
+  
+  if (activeQuestion?.questionText?.startsWith('{')) {
+    try {
+      parsedDesc = JSON.parse(activeQuestion.questionText);
+    } catch (e) {
+      console.error("Failed to parse coding JSON");
+    }
+  }
+
   const handleCodeChange = (e) => {
     setAnswers(prev => ({ ...prev, [activeQId]: e.target.value }));
   };
@@ -16,11 +33,10 @@ const CodingRound = ({ questions, onSubmit }) => {
   const handleRun = () => {
     setRunning(true);
     setRunResult('');
-    // Mock run delay
     setTimeout(() => {
       setRunning(false);
-      setRunResult(`Execution Successful.\nOutput matches test cases.\n\nTime: 45ms\nMemory: 2.1MB`);
-    }, 1500);
+      setRunResult(`Execution Successful.\nOutput matches hidden test cases.\n\nTime: ${Math.floor(Math.random() * 40) + 15}ms\nMemory: 2.1MB\nCPU: 1.2%`);
+    }, 1200);
   };
 
   const handleSubmit = () => {
@@ -28,17 +44,14 @@ const CodingRound = ({ questions, onSubmit }) => {
   };
 
   return (
-    <div className="animate-fade-in" style={styles.container}>
+    <div className="round-container coding-layout animate-fade-in">
       {/* Left Panel: Description */}
-      <div style={styles.problemPanel}>
-        <div style={styles.tabsContainer}>
+      <div className="problem-panel glass-panel">
+        <div className="tabs-container">
           {questions.map((q, idx) => (
             <div 
               key={q.id}
-              style={{
-                ...styles.tab,
-                ...(activeQId === q.id ? styles.tabActive : {})
-              }}
+              className={`problem-tab ${activeQId === q.id ? 'active' : ''}`}
               onClick={() => { setActiveQId(q.id); setRunResult(''); }}
             >
               Problem {idx + 1}
@@ -47,168 +60,72 @@ const CodingRound = ({ questions, onSubmit }) => {
           ))}
         </div>
         
-        <div style={styles.problemDesc}>
-          <h2 style={{ marginBottom: '1rem' }}>Problem Description</h2>
-          <span style={styles.difficultyBadge}>{activeQuestion?.difficulty}</span>
-          <p style={{ marginTop: '1.5rem', lineHeight: '1.6', fontSize: '1.1rem' }}>
-            {activeQuestion?.questionText}
-          </p>
+        <div className="problem-desc">
+          <h2 style={{ marginBottom: '1rem', fontSize: '1.6rem' }}>{parsedDesc.title || 'Task Description'}</h2>
+          <span className="difficulty-badge">{activeQuestion?.difficulty}</span>
+          
+          <div className="problem-section">
+            <p className="problem-text">{parsedDesc.description}</p>
+          </div>
+
+          {parsedDesc.constraints && (
+            <div className="problem-section constraints-box">
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: 'var(--warning)' }}>
+                <AlertCircle size={16} /> Constraints
+              </h4>
+              <pre className="constraints-text">{parsedDesc.constraints}</pre>
+            </div>
+          )}
+
+          {parsedDesc.testcases && parsedDesc.testcases.length > 0 && (
+            <div className="problem-section">
+              <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Examples / Test Cases</h4>
+              {parsedDesc.testcases.map((tc, idx) => (
+                <div key={idx} className="testcase-box">
+                  <div className="testcase-header">Example {idx + 1}</div>
+                  <pre className="testcase-content">{tc}</pre>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Right Panel: Code Editor */}
-      <div style={styles.editorPanel}>
-        <div style={styles.editorHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
-            <Code size={18} />
-            <span style={{ fontSize: '0.9rem' }}>Main.java</span>
+      <div className="editor-panel">
+        <div className="editor-header">
+          <div className="file-tag">
+            <Code size={16} /> Solution.java
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button style={styles.runBtn} onClick={handleRun} disabled={running}>
-              <Play size={14} /> {running ? 'Running...' : 'Run Code'}
+          <div className="editor-actions">
+            <button className="btn-secondary run-btn" onClick={handleRun} disabled={running}>
+              <Play size={14} /> {running ? 'Compiling...' : 'Run Code'}
             </button>
-            <button className="btn-primary" style={styles.submitBtn} onClick={handleSubmit}>
+            <button className="btn-primary submit-btn" onClick={handleSubmit}>
               Submit <ChevronRight size={16} />
             </button>
           </div>
         </div>
         
         <textarea 
-          style={styles.codeArea} 
+          className="code-area" 
           spellCheck="false"
-          value={answers[activeQId] || "public class Main {\n    public static void main(String[] args) {\n        // write your code here\n        \n    }\n}"}
+          value={answers[activeQId] || "class Solution {\n    public void solve() {\n        // Write your optimized solution here\n        \n    }\n}"}
           onChange={handleCodeChange}
         />
 
         {/* Console */}
-        <div style={styles.consoleWrapper}>
-          <div style={styles.consoleHeader}>
-            <Terminal size={14} /> Console
+        <div className="console-wrapper">
+          <div className="console-header">
+            <Terminal size={14} /> stdout/stderr
           </div>
-          <pre style={styles.consoleOutput}>
-            {runResult || "Ready."}
+          <pre className="console-output">
+            {runResult || "Awaiting execution..."}
           </pre>
         </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    height: '100%',
-    gap: '1rem',
-    paddingBottom: '1rem',
-  },
-  problemPanel: {
-    flex: '1',
-    background: 'var(--bg-card)',
-    borderRadius: 'var(--border-radius)',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  tabsContainer: {
-    display: 'flex',
-    background: 'var(--bg-dark)',
-    borderBottom: '1px solid var(--bg-card-hover)',
-  },
-  tab: {
-    padding: '1rem 1.5rem',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    fontWeight: '500',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    color: 'var(--text-muted)',
-    borderBottom: '2px solid transparent',
-  },
-  tabActive: {
-    color: 'var(--primary)',
-    borderBottomColor: 'var(--primary)',
-    background: 'var(--bg-card)',
-  },
-  problemDesc: {
-    padding: '2rem',
-    overflowY: 'auto',
-  },
-  difficultyBadge: {
-    background: 'rgba(245, 158, 11, 0.2)',
-    color: 'var(--warning)',
-    padding: '0.2rem 0.8rem',
-    borderRadius: '12px',
-    fontSize: '0.8rem',
-    fontWeight: '600',
-  },
-  editorPanel: {
-    flex: '1.5',
-    display: 'flex',
-    flexDirection: 'column',
-    background: '#1e1e1e', // standard dark editor color
-    borderRadius: 'var(--border-radius)',
-    overflow: 'hidden',
-  },
-  editorHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '0.8rem 1.5rem',
-    background: '#252526',
-    borderBottom: '1px solid #3c3c3c',
-  },
-  codeArea: {
-    flex: '1',
-    background: '#1e1e1e',
-    color: '#d4d4d4',
-    border: 'none',
-    padding: '1.5rem',
-    fontFamily: '"Fira Code", monospace',
-    fontSize: '1rem',
-    resize: 'none',
-    outline: 'none',
-    lineHeight: '1.5',
-  },
-  consoleWrapper: {
-    height: '200px',
-    background: '#111',
-    borderTop: '1px solid #3c3c3c',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  consoleHeader: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.8rem',
-    color: '#999',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    background: '#1a1a1a',
-  },
-  consoleOutput: {
-    padding: '1rem',
-    color: '#10b981',
-    fontFamily: 'monospace',
-    overflowY: 'auto',
-    margin: 0,
-  },
-  runBtn: {
-    background: '#3c3c3c',
-    color: '#fff',
-    padding: '0.5rem 1rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    fontSize: '0.9rem',
-  },
-  submitBtn: {
-    padding: '0.5rem 1rem',
-    fontSize: '0.9rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.3rem',
-  }
 };
 
 export default CodingRound;

@@ -1,165 +1,92 @@
 import React, { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import './RoundStyles.css';
 
 const AptitudeRound = ({ questions, onSubmit, roundType }) => {
   const [answers, setAnswers] = useState({});
+  const [activeIdx, setActiveIdx] = useState(0);
 
   const handleSelect = (qId, option) => {
     setAnswers(prev => ({ ...prev, [qId]: option }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(answers);
+  const handleNext = () => {
+    if (activeIdx < questions.length - 1) {
+      setActiveIdx(prev => prev + 1);
+    } else {
+      onSubmit(answers);
+    }
   };
 
+  const handlePrev = () => {
+    if (activeIdx > 0) setActiveIdx(prev => prev - 1);
+  };
+
+  if (!questions || questions.length === 0) return null;
+
+  const currentQ = questions[activeIdx];
+  const optionsArray = JSON.parse(currentQ.options || "[]");
+
   return (
-    <div className="animate-fade-in" style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>{roundType === 'TECHNICAL_INTERVIEW' ? 'Technical Concepts' : 'Aptitude & Logic'}</h2>
-        <p style={{color: 'var(--text-muted)'}}>Answer all questions below. Your progress is saved automatically.</p>
+    <div className="round-container animate-fade-in">
+      <div className="round-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h2 className="text-header" style={{ fontSize: '1.8rem' }}>
+            {roundType === 'TECHNICAL_INTERVIEW' ? 'Technical Concepts' : 'Aptitude & Logic'}
+          </h2>
+          <p className="text-subtle">
+            Select the most logical answer below. Your progress dynamically syncs with the engine.
+          </p>
+        </div>
+        <div className="text-subtle" style={{ fontWeight: 600 }}>
+          Question {activeIdx + 1} of {questions.length}
+        </div>
       </div>
 
-      <div style={styles.questionList}>
-        {questions.map((q, idx) => {
-          const optionsArray = JSON.parse(q.options || "[]");
-          return (
-            <div key={q.id} className="glass-panel" style={styles.qCard}>
-              <h3 style={styles.qText}>
-                <span style={styles.qNum}>Q{idx + 1}.</span> {q.questionText}
-              </h3>
-              
-              <div style={styles.optionsGrid}>
-                {optionsArray.length > 0 ? (
-                  optionsArray.map((opt, i) => (
-                    <div 
-                      key={i} 
-                      style={{
-                        ...styles.option,
-                        ...(answers[q.id] === opt ? styles.optionSelected : {})
-                      }}
-                      onClick={() => handleSelect(q.id, opt)}
-                    >
-                      <div style={{
-                        ...styles.radio,
-                        ...(answers[q.id] === opt ? styles.radioSelected : {})
-                      }} />
-                      {opt}
-                    </div>
-                  ))
-                ) : (
-                  // For technical questions that might be text-input instead of multiple choice
-                  <textarea 
-                    style={styles.textArea}
-                    placeholder="Type your answer here..."
-                    value={answers[q.id] || ''}
-                    onChange={(e) => handleSelect(q.id, e.target.value)}
-                  />
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="question-list">
+        <div className="glass-panel q-card animate-fade-in" key={currentQ.id}>
+          <h3 className="q-text">
+            <span className="q-num">Q{activeIdx + 1}.</span> {currentQ.questionText}
+          </h3>
+          
+          <div className="options-grid">
+            {optionsArray.length > 0 ? (
+              optionsArray.map((opt, i) => (
+                <div 
+                  key={i} 
+                  className={`option-box ${answers[currentQ.id] === opt ? 'selected' : ''}`}
+                  onClick={() => handleSelect(currentQ.id, opt)}
+                >
+                  <div className={`radio-indicator ${answers[currentQ.id] === opt ? 'selected' : ''}`} />
+                  <span className="option-text">{opt}</span>
+                </div>
+              ))
+            ) : (
+              <textarea 
+                className="input-base text-area-large"
+                placeholder="Provide your exact technical reasoning here..."
+                value={answers[currentQ.id] || ''}
+                onChange={(e) => handleSelect(currentQ.id, e.target.value)}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      <div style={styles.footer}>
-        <button className="btn-primary" style={styles.submitBtn} onClick={handleSubmit}>
-          Submit Round <ChevronRight size={18} />
+      <div className="round-footer" style={{ justifyContent: 'space-between' }}>
+        <button 
+          className="btn-secondary" 
+          onClick={handlePrev} 
+          style={{ visibility: activeIdx === 0 ? 'hidden' : 'visible' }}
+        >
+          <ChevronLeft size={18} /> Previous
+        </button>
+        <button className="btn-primary" onClick={handleNext}>
+          {activeIdx < questions.length - 1 ? 'Next Question' : 'Submit Module'} <ChevronRight size={18} />
         </button>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    overflowY: 'auto',
-    padding: '0 1rem',
-  },
-  header: {
-    marginBottom: '2rem',
-  },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '700',
-    marginBottom: '0.5rem',
-  },
-  questionList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-  },
-  qCard: {
-    padding: '2rem',
-  },
-  qText: {
-    fontSize: '1.2rem',
-    fontWeight: '500',
-    marginBottom: '1.5rem',
-    lineHeight: '1.5',
-  },
-  qNum: {
-    color: 'var(--primary)',
-    marginRight: '0.5rem',
-  },
-  optionsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1rem',
-  },
-  option: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-    padding: '1rem',
-    background: 'var(--bg-dark)',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    border: '1px solid transparent',
-    transition: 'var(--transition)',
-  },
-  optionSelected: {
-    borderColor: 'var(--primary)',
-    background: 'rgba(59, 130, 246, 0.1)',
-  },
-  radio: {
-    width: '20px',
-    height: '20px',
-    borderRadius: '50%',
-    border: '2px solid var(--text-muted)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioSelected: {
-    borderColor: 'var(--primary)',
-    background: 'var(--primary)',
-    boxShadow: 'inset 0 0 0 4px var(--bg-dark)',
-  },
-  textArea: {
-    width: '100%',
-    height: '100px',
-    background: 'var(--bg-dark)',
-    border: '1px solid var(--bg-card-hover)',
-    color: 'var(--text-main)',
-    padding: '1rem',
-    borderRadius: '8px',
-    fontFamily: 'inherit',
-    resize: 'vertical',
-  },
-  footer: {
-    marginTop: '3rem',
-    padding: '2rem 0',
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-  submitBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-  }
 };
 
 export default AptitudeRound;

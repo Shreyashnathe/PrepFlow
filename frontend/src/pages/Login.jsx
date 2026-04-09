@@ -4,6 +4,7 @@ import { loginUserApi } from '../services/api';
 import { useAppContext } from '../context/AppContext';
 import toast from 'react-hot-toast';
 import { Lock, Mail, User, ChevronRight } from 'lucide-react';
+import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,74 +29,75 @@ const Login = () => {
         navigate('/home');
       }
     } catch (err) {
-      toast.error(err.response?.data || "Authentication failed.");
+      const msg = err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : "Authentication failed.");
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div className="glass-panel animate-fade-in" style={styles.card}>
-        <div style={styles.header}>
-          <div style={styles.iconWrapper}>
-            <Lock size={24} color="var(--primary)" />
+    <div className="login-container">
+      <div className="glass-panel login-card animate-fade-in">
+        <div className="login-header">
+          <div className="login-icon-wrapper">
+            <Lock size={22} color="var(--primary)" />
           </div>
-          <h2 style={styles.title}>{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
-          <p style={styles.subtitle}>
+          <h2 className="text-header" style={{fontSize: '1.8rem'}}>{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
+          <p className="text-subtle">
             {isRegister ? 'Start your placement journey' : 'Securely access your simulation history'}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form onSubmit={handleSubmit} className="login-form">
           {isRegister && (
-            <div style={styles.inputGroup}>
-              <User size={18} style={styles.icon} />
+            <div className="input-group">
+              <User size={18} className="input-icon" />
               <input 
                 type="text" 
                 placeholder="Full Name" 
                 required 
-                style={styles.input}
+                className="input-base"
                 value={formData.name}
                 onChange={e => setFormData({...formData, name: e.target.value})}
               />
             </div>
           )}
 
-          <div style={styles.inputGroup}>
-            <Mail size={18} style={styles.icon} />
+          <div className="input-group">
+            <Mail size={18} className="input-icon" />
             <input 
               type="email" 
-              placeholder="Email Address" 
+              placeholder="name@example.com" 
               required 
-              style={styles.input}
+              className="input-base"
               value={formData.email}
               onChange={e => setFormData({...formData, email: e.target.value})}
             />
           </div>
 
-          <div style={styles.inputGroup}>
-            <Lock size={18} style={styles.icon} />
+          <div className="input-group">
+            <Lock size={18} className="input-icon" />
             <input 
               type="password" 
-              placeholder="Password" 
+              placeholder="••••••••" 
               required 
-              style={styles.input}
+              className="input-base"
               value={formData.password}
               onChange={e => setFormData({...formData, password: e.target.value})}
             />
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary" style={{width: '100%', marginTop: '1rem', justifyContent: 'center'}}>
+          <button type="submit" disabled={loading} className="btn-primary login-btn">
             {loading ? 'Processing...' : (isRegister ? 'Sign Up' : 'Sign In')}
             <ChevronRight size={18} />
           </button>
         </form>
 
-        <div style={styles.footer}>
-          <p style={{color: 'var(--text-muted)', fontSize: '0.9rem'}}>
+        <div className="login-footer">
+          <p className="text-subtle" style={{fontSize: '0.9rem'}}>
             {isRegister ? 'Already have an account? ' : 'Don\'t have an account? '}
-            <span style={styles.switchLink} onClick={() => setIsRegister(!isRegister)}>
+            <span className="switch-link" onClick={() => setIsRegister(!isRegister)}>
               {isRegister ? 'Login Instead' : 'Register Here'}
             </span>
           </p>
@@ -103,85 +105,6 @@ const Login = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    padding: '2rem',
-  },
-  card: {
-    width: '100%',
-    maxWidth: '450px',
-    padding: '3rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2rem',
-  },
-  header: {
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '0.8rem',
-  },
-  iconWrapper: {
-    width: '50px',
-    height: '50px',
-    borderRadius: '12px',
-    background: 'rgba(59, 130, 246, 0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: '0.5rem',
-  },
-  title: {
-    fontSize: '2rem',
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: 'var(--text-muted)',
-    fontSize: '0.95rem',
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  inputGroup: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  icon: {
-    position: 'absolute',
-    left: '1rem',
-    color: 'var(--text-muted)',
-  },
-  input: {
-    width: '100%',
-    padding: '1rem 1rem 1rem 3rem',
-    background: 'rgba(0,0,0,0.2)',
-    border: '1px solid var(--bg-card-hover)',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '1rem',
-    outline: 'none',
-    transition: 'var(--transition)',
-  },
-  footer: {
-    textAlign: 'center',
-    marginTop: '1rem',
-  },
-  switchLink: {
-    color: 'var(--primary)',
-    fontWeight: '600',
-    cursor: 'pointer',
-    textDecoration: 'none',
-  }
 };
 
 export default Login;

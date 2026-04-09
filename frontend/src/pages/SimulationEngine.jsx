@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSimulationFlow, fetchQuestionsForRound, submitRound } from '../services/api';
 import { useAppContext } from '../context/AppContext';
-import { Clock, CheckCircle } from 'lucide-react';
+import { Clock, Check, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AptitudeRound from '../components/AptitudeRound';
 import CodingRound from '../components/CodingRound';
 import HRRound from '../components/HRRound';
+import './SimulationEngine.css';
 
 const SimulationEngine = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const SimulationEngine = () => {
       }
     } catch (e) {
       console.error(e);
+      toast.error("Failed to load flow");
     }
   };
 
@@ -42,10 +44,10 @@ const SimulationEngine = () => {
     try {
       const res = await fetchQuestionsForRound(roundId);
       setQuestions(res.data);
-      // reset timer based on round type if needed (e.g., coding gets 45 mins)
-      setTimeLeft(1800);
+      setTimeLeft(1800); // Reset timer per round
     } catch (e) {
       console.error(e);
+      toast.error("Failed to load questions");
     } finally {
       setLoading(false);
     }
@@ -65,7 +67,6 @@ const SimulationEngine = () => {
 
   const handleRoundSubmit = async (answers) => {
     const currentRound = simulationFlow[currentRoundIndex];
-    // Calculate time taken for this round (max time - time left)
     const timeTakenInSeconds = 1800 - timeLeft;
 
     try {
@@ -73,12 +74,10 @@ const SimulationEngine = () => {
       toast.success(`${currentRound.roundType.replace('_', ' ')} submitted!`);
       
       if (currentRoundIndex < simulationFlow.length - 1) {
-        // Move to next round
         const nextIndex = currentRoundIndex + 1;
         setCurrentRoundIndex(nextIndex);
         await loadQuestions(simulationFlow[nextIndex].id);
       } else {
-        // Finished all rounds
         toast.success("Simulation Complete!");
         navigate('/result');
       }
@@ -89,41 +88,43 @@ const SimulationEngine = () => {
   };
 
   if (!simulationFlow.length || loading) {
-    return <div style={styles.loading}>Loading Engine...</div>;
+    return (
+      <div className="sim-loading-screen">
+        <Loader2 className="spinner" size={48} color="var(--primary)" />
+        <p className="text-subtle">Initializing environment...</p>
+      </div>
+    );
   }
 
   const currentRound = simulationFlow[currentRoundIndex];
 
   return (
-    <div style={styles.container}>
+    <div className="sim-container">
       {/* Top Navigation Wrapper */}
-      <div className="glass-panel" style={styles.header}>
-        <div style={styles.stepper}>
+      <div className="glass-panel sim-header">
+        <div className="sim-stepper">
           {simulationFlow.map((round, idx) => (
             <div 
               key={round.id} 
-              style={{
-                ...styles.stepIndicator,
-                color: idx === currentRoundIndex ? 'var(--primary)' : idx < currentRoundIndex ? 'var(--success)' : 'var(--text-muted)'
-              }}
+              className={`sim-step ${idx === currentRoundIndex ? 'active' : idx < currentRoundIndex ? 'completed' : ''}`}
             >
-              {idx < currentRoundIndex ? <CheckCircle size={20} /> : <div style={styles.stepCircle}>{idx + 1}</div>}
-              <span>{round.roundType}</span>
-              {idx < simulationFlow.length - 1 && <div style={styles.stepLine} />}
+              <div className="step-circle">
+                {idx < currentRoundIndex ? <Check size={14} strokeWidth={3} /> : (idx + 1)}
+              </div>
+              <span className="step-label">{round.roundType.replace('_', ' ')}</span>
+              {idx < simulationFlow.length - 1 && <div className="step-line" />}
             </div>
           ))}
         </div>
         
-        <div style={styles.timerContainer}>
-          <Clock size={20} color={timeLeft < 300 ? 'var(--danger)' : 'var(--warning)'} />
-          <span style={{...styles.timerText, color: timeLeft < 300 ? 'var(--danger)' : 'white'}}>
-            {formatTime(timeLeft)}
-          </span>
+        <div className={`sim-timer ${timeLeft < 300 ? 'danger' : ''}`}>
+          <Clock size={18} />
+          <span className="timer-text">{formatTime(timeLeft)}</span>
         </div>
       </div>
 
       {/* Dynamic Module Loader */}
-      <div style={styles.moduleWrapper}>
+      <div className="sim-module-wrapper">
         {(currentRound.roundType === 'APTITUDE' || currentRound.roundType === 'TECHNICAL_INTERVIEW') && (
           <AptitudeRound questions={questions} onSubmit={handleRoundSubmit} roundType={currentRound.roundType} />
         )}
@@ -136,79 +137,6 @@ const SimulationEngine = () => {
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '2rem',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    fontSize: '1.5rem',
-    color: 'var(--primary)',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '1.5rem 2rem',
-    marginBottom: '2rem',
-  },
-  stepper: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  stepIndicator: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    fontWeight: '600',
-    fontSize: '0.9rem',
-  },
-  stepCircle: {
-    width: '24px',
-    height: '24px',
-    borderRadius: '50%',
-    border: '2px solid currentColor',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.8rem',
-  },
-  stepLine: {
-    width: '30px',
-    height: '2px',
-    backgroundColor: 'var(--bg-card-hover)',
-    marginLeft: '0.5rem',
-  },
-  timerContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    background: 'rgba(0,0,0,0.3)',
-    padding: '0.5rem 1rem',
-    borderRadius: '8px',
-  },
-  timerText: {
-    fontSize: '1.25rem',
-    fontWeight: '700',
-    fontVariantNumeric: 'tabular-nums',
-  },
-  moduleWrapper: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  }
 };
 
 export default SimulationEngine;

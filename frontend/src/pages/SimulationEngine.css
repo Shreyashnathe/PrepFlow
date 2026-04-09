@@ -1,0 +1,134 @@
+.sim-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 1.5rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  margin-bottom: 2rem;
+  border-radius: 16px;
+  background: rgba(24, 24, 27, 0.8);
+}
+
+.sim-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sim-step {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.step-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0.8rem;
+}
+
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-card-hover);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.sim-step.active {
+  color: var(--text-main);
+}
+.sim-step.active .step-circle {
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.sim-step.completed {
+  color: var(--text-main);
+}
+.sim-step.completed .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.step-line {
+  width: 32px;
+  height: 2px;
+  background: var(--bg-card-hover);
+  margin-right: 0.5rem;
+  border-radius: 2px;
+}
+.sim-step.completed .step-line {
+  background: var(--primary);
+  opacity: 0.5;
+}
+
+.sim-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(0,0,0,0.4);
+  border: var(--border-subtle);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.sim-timer.danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+  box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.1);
+}
+
+.timer-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+.sim-module-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

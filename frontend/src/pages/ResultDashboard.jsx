@@ -1,272 +1,143 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchReport } from '../services/api';
 import { useAppContext } from '../context/AppContext';
-import { Award, Briefcase, ChevronLeft, Target, AlertTriangle } from 'lucide-react';
+import axios from 'axios';
+import { Trophy, Clock, Target, Home } from 'lucide-react';
+import './ResultDashboard.css';
 
 const ResultDashboard = () => {
   const navigate = useNavigate();
-  const { attemptId, selectedCompany, selectedRole } = useAppContext();
+  const { attemptId } = useAppContext();
   const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!attemptId) {
       navigate('/');
       return;
     }
-    loadReport();
-  }, [attemptId]);
+    
+    const fetchReport = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`http://localhost:8080/api/v1/attempts/${attemptId}/report`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setReport(res.data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchReport();
+  }, [attemptId, navigate]);
 
-  const loadReport = async () => {
-    try {
-      const res = await fetchReport(attemptId);
-      setReport(res.data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!report) {
+    return (
+      <div className="sim-loading-screen">
+        <p className="text-subtle">Compiling Analytics Data...</p>
+      </div>
+    );
+  }
 
-  if (loading) return <div style={styles.loading}>Generating Comprehensive Report...</div>;
-  if (!report) return <div style={styles.loading}>Error loading report.</div>;
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  const totalScore = report.totalScore || 0;
+  const strokeDashoffset = circumference - (totalScore / 100) * circumference;
 
-  const getReadinessColor = (level) => {
-    if (level === 'READY') return 'var(--success)';
-    if (level === 'ALMOST READY') return 'var(--warning)';
-    return 'var(--danger)';
-  };
+  const roundScoresArray = report.roundScores ? Object.entries(report.roundScores) : [];
 
   return (
-    <div style={styles.container}>
-      <div className="glass-panel animate-fade-in" style={styles.dashboard}>
+    <div className="page-wrapper dashboard-wrapper animate-fade-in">
+      
+      {/* Top Navigation */}
+      <div className="dash-nav">
+        <h1 className="text-header gradient-text">Simulation Telemetry</h1>
+        <button className="btn-secondary" onClick={() => navigate('/home')}>
+          <Home size={16} /> Return Home
+        </button>
+      </div>
+
+      <div className="dash-grid">
         
-        <div style={styles.header}>
-          <div>
-            <h1 className="gradient-text" style={styles.title}>Candidate Execution Report</h1>
-            <p style={styles.subtitle}>
-              <Briefcase size={16} /> {selectedCompany?.name} - {selectedRole?.name} Pipeline
+        {/* Main Score Widget */}
+        <div className="glass-panel main-score-widget fade-up" style={{animationDelay: '0.1s'}}>
+          <div className="score-svg-wrapper">
+            <svg 
+              className="progress-svg"
+              width="180" 
+              height="180" 
+              viewBox="0 0 180 180"
+            >
+              <circle
+                className="progress-bg"
+                cx="90" cy="90" r={radius}
+                strokeWidth="12"
+              />
+              <circle
+                className="progress-bar"
+                cx="90" cy="90" r={radius}
+                strokeWidth="12"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                transform="rotate(-90 90 90)"
+              />
+            </svg>
+            <div className="score-text-inner">
+              <span className="score-big">{totalScore.toFixed(0)}</span>
+              <span className="score-small">%</span>
+            </div>
+          </div>
+          
+          <div className="score-info">
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Pipeline Status: <span style={{ color: totalScore > 60 ? 'var(--success)' : 'var(--warning)' }}>{report.readinessLevel || 'UNKNOWN'}</span></h2>
+            <p className="text-subtle">
+              Based on the standard cumulative average of {roundScoresArray.length} technical assignments.
             </p>
           </div>
-          <div style={{...styles.readinessBadge, borderColor: getReadinessColor(report.readinessLevel)}}>
-            <Target size={20} color={getReadinessColor(report.readinessLevel)} />
-            <span style={{color: getReadinessColor(report.readinessLevel), fontWeight: 'bold'}}>
-              {report.readinessLevel}
-            </span>
-          </div>
         </div>
 
-        <div style={styles.scoreOverview}>
-          <div style={styles.scoreCard}>
-            <div style={styles.scoreRingWrapper}>
-              <svg viewBox="0 0 160 160" width="160" height="160">
-                {/* Background track */}
-                <circle cx="80" cy="80" r="70" fill="none" stroke="var(--bg-card-hover)" strokeWidth="12" />
-                {/* Score Fill */}
-                <circle 
-                  cx="80" 
-                  cy="80" 
-                  r="70" 
-                  fill="none" 
-                  stroke="var(--primary)" 
-                  strokeWidth="12" 
-                  strokeDasharray="439.8" 
-                  strokeDashoffset={439.8 - (439.8 * (Math.round(report.totalScore) / 100))}
-                  strokeLinecap="round"
-                  style={{ transition: 'stroke-dashoffset 1s ease-out', transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
-                />
-              </svg>
-              <div style={styles.mainScoreText}>{Math.round(report.totalScore)}%</div>
-            </div>
-            <p style={{marginTop: '1.5rem', color: 'var(--text-muted)'}}>Overall Assessment Score</p>
-          </div>
-
-          <div style={styles.roundsMatrix}>
-            <h3 style={{marginBottom: '1rem', borderBottom: '1px solid var(--bg-card-hover)', paddingBottom: '0.5rem'}}>
-              Round Breakdown
-            </h3>
-            <div style={styles.matrixGrid}>
-              {Object.entries(report.roundScores).map(([roundName, score]) => (
-                <div key={roundName} style={styles.matrixItem}>
-                  <span style={styles.roundName}>{roundName.replace('_', ' ')}</span>
-                  <div style={styles.progressBar}>
-                    <div 
-                      style={{
-                        ...styles.progressFill, 
-                        width: `${score}%`, 
-                        background: score >= 75 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)'
-                      }} 
-                    />
-                  </div>
-                  <span style={styles.scoreText}>{Math.round(score)}%</span>
-                </div>
-              ))}
+        {/* Global Stats */}
+        <div className="global-stats-container fade-up" style={{animationDelay: '0.2s'}}>
+          <div className="glass-panel stat-card">
+            <div className="stat-icon"><Trophy size={20} color="var(--primary)" /></div>
+            <div>
+              <p className="text-subtle">Report Assessment Focus</p>
+              <p className="stat-val" style={{fontSize: '1rem', marginTop: '0.5rem', fontWeight: 500}}>{report.overallFeedback || "Completion metric recorded."}</p>
             </div>
           </div>
         </div>
 
-        <div style={styles.feedbackSection}>
-          <div style={styles.feedbackHeader}>
-            <AlertTriangle size={20} color="var(--accent)" />
-            <h3>Actionable Feedback</h3>
+        {/* Round Breakdown Table */}
+        <div className="glass-panel table-widget fade-up" style={{animationDelay: '0.3s'}}>
+          <h2 style={{ marginBottom: '1.5rem', fontSize: '1.2rem' }}>Modular Breakdown</h2>
+          <div className="table-responsive">
+            <table className="dark-table">
+              <thead>
+                <tr>
+                  <th>Assessment Module</th>
+                  <th>Score Precision</th>
+                </tr>
+              </thead>
+              <tbody>
+                {roundScoresArray.map(([moduleName, score], idx) => (
+                  <tr key={idx}>
+                    <td><span className="round-badge">{moduleName.replace('_', ' ')}</span></td>
+                    <td>
+                      <div className="mini-progress-wrapper">
+                        <div className="mini-progress-fill" style={{ width: `${score}%`, background: score > 70 ? 'var(--success)' : 'var(--warning)' }} />
+                      </div>
+                      <span style={{fontSize: '0.8rem', marginLeft: '0.5rem'}}>{score.toFixed(0)}%</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <p style={styles.feedbackText}>{report.overallFeedback}</p>
         </div>
 
-        <div style={styles.actions}>
-          <button className="btn-primary" style={styles.homeBtn} onClick={() => navigate('/')}>
-            <ChevronLeft size={18} /> Return to Home
-          </button>
-        </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    maxWidth: '1000px',
-    margin: '0 auto',
-    padding: '3rem 1rem',
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    fontSize: '1.5rem',
-    color: 'var(--primary)',
-  },
-  dashboard: {
-    padding: '3rem',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: '3rem',
-  },
-  title: {
-    fontSize: '2.5rem',
-    fontWeight: '700',
-    marginBottom: '0.5rem',
-  },
-  subtitle: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    color: 'var(--text-muted)',
-    fontSize: '1.2rem',
-  },
-  readinessBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.8rem 1.5rem',
-    border: '2px solid',
-    borderRadius: '30px',
-    background: 'rgba(0,0,0,0.3)',
-  },
-  scoreOverview: {
-    display: 'flex',
-    gap: '3rem',
-    marginBottom: '3rem',
-  },
-  scoreCard: {
-    flex: '1',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2rem',
-    background: 'var(--bg-dark)',
-    borderRadius: 'var(--border-radius)',
-    border: '1px solid var(--bg-card-hover)',
-  },
-  scoreRingWrapper: {
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mainScoreText: {
-    position: 'absolute',
-    fontSize: '2.5rem',
-    fontWeight: '700',
-    color: 'var(--text-main)',
-  },
-  roundsMatrix: {
-    flex: '2',
-    background: 'var(--bg-dark)',
-    padding: '2rem',
-    borderRadius: 'var(--border-radius)',
-    border: '1px solid var(--bg-card-hover)',
-  },
-  matrixGrid: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem',
-    marginTop: '1.5rem',
-  },
-  matrixItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1rem',
-  },
-  roundName: {
-    flex: '1',
-    fontSize: '0.9rem',
-    fontWeight: '500',
-    color: 'var(--text-muted)',
-  },
-  progressBar: {
-    flex: '3',
-    height: '12px',
-    background: 'var(--bg-card-hover)',
-    borderRadius: '6px',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: '6px',
-    transition: 'width 1s ease-out',
-  },
-  scoreText: {
-    width: '40px',
-    textAlign: 'right',
-    fontWeight: '600',
-  },
-  feedbackSection: {
-    background: 'rgba(139, 92, 246, 0.1)',
-    border: '1px solid rgba(139, 92, 246, 0.3)',
-    padding: '2rem',
-    borderRadius: 'var(--border-radius)',
-    marginBottom: '3rem',
-  },
-  feedbackHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.8rem',
-    marginBottom: '1rem',
-    color: 'var(--accent)',
-  },
-  feedbackText: {
-    fontSize: '1.1rem',
-    lineHeight: '1.6',
-    color: '#e2e8f0',
-  },
-  actions: {
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  homeBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    background: 'var(--bg-card-hover)',
-    padding: '1rem 2rem',
-  }
 };
 
 export default ResultDashboard;
