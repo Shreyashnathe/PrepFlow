@@ -103,8 +103,9 @@
 /* Coding Round Styles */
 .coding-layout {
   flex-direction: row;
-  gap: 1.5rem;
+  gap: 1rem;
   overflow: hidden;
+  background-color: transparent;
 }
 
 .problem-panel {
@@ -113,69 +114,64 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: 12px;
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .tabs-container {
   display: flex;
-  background: rgba(0,0,0,0.4);
-  border-bottom: var(--border-subtle);
-  overflow-x: auto;
+  background: #252526;
+  border-bottom: 1px solid #333;
 }
 
 .problem-tab {
   padding: 1rem 1.5rem;
-  background: transparent;
-  color: var(--text-muted);
+  color: #858585;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s;
   font-weight: 500;
   border-bottom: 2px solid transparent;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .problem-tab:hover {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.03);
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .problem-tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  background: rgba(59, 130, 246, 0.05);
-}
-
-.difficulty-badge {
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--success);
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  color: #fff;
+  border-bottom-color: #4ade80;
+  background: #1e1e1e;
 }
 
 .problem-desc {
   padding: 2rem;
   overflow-y: auto;
   flex: 1;
+  color: #d4d4d4;
+}
+
+.section-header {
+  font-size: 1.15rem;
+  color: #fff;
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .problem-text {
-  color: var(--text-muted);
+  color: #d4d4d4;
   line-height: 1.6;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   white-space: pre-wrap;
 }
 
 .editor-panel {
-  flex: 1.2;
+  flex: 1.1;
   display: flex;
   flex-direction: column;
-  background: #0d0d0f;
-  border: var(--border-subtle);
+  background: #1e1e1e;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -184,79 +180,95 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 1.5rem;
-  background: rgba(255,255,255,0.03);
-  border-bottom: var(--border-subtle);
+  padding: 0.6rem 1rem;
+  background: #252526;
+  border-bottom: 1px solid #333;
 }
 
-.file-tag {
+.language-selector {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #fff;
-  font-family: monospace;
-  font-size: 0.9rem;
+  gap: 1rem;
+  color: #d4d4d4;
+}
+
+.custom-select select {
+  background: #3c3c3c;
+  color: #d4d4d4;
+  border: 1px solid #555;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  outline: none;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 .editor-actions {
   display: flex;
   gap: 0.8rem;
 }
+
 .run-btn {
-  padding: 0.4rem 1rem;
+  background: transparent;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+  padding: 0.4rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
   font-size: 0.85rem;
 }
+.run-btn:hover {
+  background: rgba(74, 222, 128, 0.1);
+}
+
 .submit-btn {
+  background: #4ade80;
+  color: #000;
+  border: none;
   padding: 0.4rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
   font-size: 0.85rem;
+}
+.submit-btn:hover {
+  background: #22c55e;
 }
 
 .neon-editor-wrapper {
   flex: 1;
-  background: rgba(13, 13, 15, 0.95);
-  overflow-y: auto;
-  position: relative;
+  background: #1e1e1e;
+  overflow: hidden;
 }
 
-.code-area-glass {
-  min-height: 100%;
-  color: #e4e4e7;
-  outline: none;
-}
-
-/* Customizing Prism for Neon/Glass Aesthetics */
-code[class*="language-"], pre[class*="language-"] {
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.1);
-}
-.token.keyword { color: #c084fc !important; text-shadow: 0 0 8px rgba(192, 132, 252, 0.4); }
-.token.class-name, .token.function { color: #60a5fa !important; text-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
-.token.string { color: #34d399 !important; text-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
-.token.comment { color: #6b7280 !important; font-style: italic; }
-.token.operator { color: #fb7185 !important; }
 .console-wrapper {
   height: 200px;
-  border-top: var(--border-subtle);
+  border-top: 1px solid #333;
   display: flex;
   flex-direction: column;
-  background: #000;
+  background: #1e1e1e;
 }
 
 .console-header {
-  padding: 0.5rem 1rem;
-  background: rgba(255,255,255,0.05);
+  padding: 0.5rem 1.5rem;
+  background: #252526;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: #858585;
   text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-bottom: 1px solid #333;
 }
 
 .console-output {
-  padding: 1rem;
-  color: #a1a1aa;
-  font-family: monospace;
-  font-size: 0.9rem;
+  padding: 1rem 1.5rem;
+  color: #d4d4d4;
+  font-family: inherit;
+  font-size: 0.85rem;
   overflow-y: auto;
   white-space: pre-wrap;
 }
@@ -374,22 +386,25 @@ code[class*="language-"], pre[class*="language-"] {
 }
 
 .constraints-box {
-  background: rgba(245, 158, 11, 0.05);
-  border: 1px solid rgba(245, 158, 11, 0.2);
-  padding: 1.2rem;
-  border-radius: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 .constraints-text {
-  font-family: monospace;
-  color: #fbbf24;
+  font-family: inherit;
+  color: #d4d4d4;
   white-space: pre-wrap;
   font-size: 0.95rem;
   line-height: 1.5;
+  background: rgba(255,255,255,0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .testcase-box {
   background: rgba(255, 255, 255, 0.03);
-  border: var(--border-subtle);
+  border: none;
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -399,16 +414,16 @@ code[class*="language-"], pre[class*="language-"] {
   background: rgba(255, 255, 255, 0.05);
   padding: 0.6rem 1rem;
   font-size: 0.85rem;
-  color: var(--text-muted);
-  font-weight: 600;
-  border-bottom: var(--border-subtle);
+  color: #858585;
+  font-weight: 500;
+  border-bottom: none;
 }
 
 .testcase-content {
   padding: 1rem;
-  font-family: monospace;
-  color: #e4e4e7;
-  font-size: 0.95rem;
+  font-family: inherit;
+  color: #d4d4d4;
+  font-size: 0.9rem;
   line-height: 1.5;
   white-space: pre-wrap;
 }

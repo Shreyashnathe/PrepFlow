@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { Terminal, Code, Play, ChevronRight, Check, AlertCircle } from 'lucide-react';
-import Editor from 'react-simple-code-editor';
-import Prism from 'prismjs';
-import 'prismjs/components/prism-java';
-import 'prismjs/themes/prism-tomorrow.css';
+import { Terminal, Code, Play, ChevronRight, Check, AlertCircle, ChevronDown } from 'lucide-react';
+import { Editor } from '@monaco-editor/react';
 import './RoundStyles.css';
 
 const CodingRound = ({ questions, onSubmit }) => {
@@ -11,6 +8,7 @@ const CodingRound = ({ questions, onSubmit }) => {
   const [answers, setAnswers] = useState({});
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState('');
+  const [language, setLanguage] = useState('cpp');
 
   const activeQuestion = questions.find(q => q.id === activeQId);
 
@@ -30,10 +28,6 @@ const CodingRound = ({ questions, onSubmit }) => {
     }
   }
 
-  const handleCodeChange = (e) => {
-    setAnswers(prev => ({ ...prev, [activeQId]: e.target.value }));
-  };
-
   const handleRun = () => {
     setRunning(true);
     setRunResult('');
@@ -45,6 +39,12 @@ const CodingRound = ({ questions, onSubmit }) => {
 
   const handleSubmit = () => {
     onSubmit(answers);
+  };
+
+  const defaultCode = {
+    java: "class Solution {\n    public void solve() {\n        // Write your optimized solution here\n        \n    }\n}",
+    cpp: "#include <iostream>\n#include <vector>\nusing namespace std;\n\nint main() {\n    // Code here\n    return 0;\n}",
+    python: "def solve():\n    # Write your python code here\n    pass"
   };
 
   return (
@@ -65,25 +65,28 @@ const CodingRound = ({ questions, onSubmit }) => {
         </div>
         
         <div className="problem-desc">
-          <h2 style={{ marginBottom: '1rem', fontSize: '1.6rem' }}>{parsedDesc.title || 'Task Description'}</h2>
-          <span className="difficulty-badge">{activeQuestion?.difficulty}</span>
-          
+          <h2 style={{ marginBottom: '0.5rem', fontSize: '1.6rem', color: '#fff', fontWeight: 'bold' }}>{parsedDesc.title || 'Task Description'}</h2>
+          <div className="problem-meta-info" style={{ display: 'flex', gap: '1rem', color: '#a3a3a3', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+            <span>Difficulty: <span style={{color: activeQuestion?.difficulty === 'Hard' ? '#ef4444' : activeQuestion?.difficulty === 'Medium' ? '#10b981' : '#10b981'}}>{activeQuestion?.difficulty || 'Medium'}</span></span>
+            <span>Time limit: 1.0s</span>
+            <span>Memory limit: 256MB</span>
+          </div>
+
           <div className="problem-section">
+            <h3 className="section-header">Description</h3>
             <p className="problem-text">{parsedDesc.description}</p>
           </div>
 
           {parsedDesc.constraints && (
             <div className="problem-section constraints-box">
-              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', color: 'var(--warning)' }}>
-                <AlertCircle size={16} /> Constraints
-              </h4>
+              <h3 className="section-header">Constraints</h3>
               <pre className="constraints-text">{parsedDesc.constraints}</pre>
             </div>
           )}
 
           {parsedDesc.testcases && parsedDesc.testcases.length > 0 && (
             <div className="problem-section">
-              <h4 style={{ marginBottom: '1rem', color: 'var(--text-main)' }}>Examples / Test Cases</h4>
+              <h3 className="section-header">Sample Input/Output</h3>
               {parsedDesc.testcases.map((tc, idx) => (
                 <div key={idx} className="testcase-box">
                   <div className="testcase-header">Example {idx + 1}</div>
@@ -98,30 +101,42 @@ const CodingRound = ({ questions, onSubmit }) => {
       {/* Right Panel: Code Editor */}
       <div className="editor-panel">
         <div className="editor-header">
-          <div className="file-tag">
-            <Code size={16} /> Solution.java
+          <div className="language-selector">
+            <span style={{ fontSize: '0.9rem', fontFamily: 'monospace' }}>main.{language === 'java' ? 'java' : language === 'cpp' ? 'cpp' : 'py'}</span>
+            <div className="custom-select">
+              <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                <option value="cpp">C++ 17</option>
+                <option value="java">Java 21</option>
+                <option value="python">Python 3.10</option>
+              </select>
+            </div>
           </div>
           <div className="editor-actions">
-            <button className="btn-secondary run-btn" onClick={handleRun} disabled={running}>
-              <Play size={14} /> {running ? 'Compiling...' : 'Run Code'}
+            <button className="run-btn" onClick={handleRun} disabled={running}>
+              {running ? 'Compiling...' : 'Run'}
             </button>
-            <button className="btn-primary submit-btn" onClick={handleSubmit}>
-              Submit <ChevronRight size={16} />
+            <button className="submit-btn" onClick={handleSubmit}>
+              Submit
             </button>
           </div>
         </div>
         
         <div className="neon-editor-wrapper">
           <Editor
-            value={answers[activeQId] || "class Solution {\n    public void solve() {\n        // Write your optimized solution here\n        \n    }\n}"}
-            onValueChange={code => setAnswers(prev => ({ ...prev, [activeQId]: code }))}
-            highlight={code => Prism.highlight(code, Prism.languages.java, 'java')}
-            padding={24}
-            className="code-area-glass"
-            style={{
-              fontFamily: '"Fira Code", "Courier New", monospace',
-              fontSize: '15px',
-              minHeight: '400px',
+            height="100%"
+            language={language}
+            theme="vs-dark"
+            value={answers[activeQId] || defaultCode[language]}
+            onChange={code => setAnswers(prev => ({ ...prev, [activeQId]: code }))}
+            options={{
+              minimap: { enabled: false },
+              fontSize: 14,
+              fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+              lineHeight: 24,
+              padding: { top: 16 },
+              scrollBeyondLastLine: false,
+              roundedSelection: false,
+              scrollbar: { vertical: 'hidden' }
             }}
           />
         </div>
