@@ -13,8 +13,16 @@ const CompanySelection = () => {
   const [activeCompany, setActiveCompany] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [loadingConfig, setLoadingConfig] = useState(true);
+
   useEffect(() => {
-    fetchCompanies().then(res => setCompanies(res.data)).catch(console.error);
+    fetchCompanies().then(res => {
+      setCompanies(res.data);
+      setLoadingConfig(false);
+    }).catch(e => {
+      console.error(e);
+      setLoadingConfig(false);
+    });
   }, []);
 
   const handleCompanySelect = async (company) => {
@@ -75,21 +83,27 @@ const CompanySelection = () => {
           <h2 className="cs-section-title">1. Target Architecture</h2>
         </div>
         
-        <div className="bento-grid animate-fade-in" style={{animationDelay: '0.1s'}}>
-          {companies.map(company => (
-            <div 
-              key={company.id} 
-              className={`glass-panel bento-card ${activeCompany?.id === company.id ? 'active' : ''}`}
-              onClick={() => handleCompanySelect(company)}
-            >
-              <div className="bento-icon">
-                <Building size={28} color={activeCompany?.id === company.id ? '#60a5fa' : 'var(--text-muted)'} />
+        {loadingConfig ? (
+          <div style={{ display: 'flex', justifyContent: 'center', margin: '4rem 0' }}>
+            <p className="text-subtle">Establishing connection to datacenters...</p>
+          </div>
+        ) : (
+          <div className="bento-grid animate-fade-in" style={{animationDelay: '0.1s'}}>
+            {companies.map(company => (
+              <div 
+                key={company.id} 
+                className={`glass-panel bento-card ${activeCompany?.id === company.id ? 'active' : ''}`}
+                onClick={() => handleCompanySelect(company)}
+              >
+                <div className="bento-icon">
+                  <Building size={28} color={activeCompany?.id === company.id ? '#60a5fa' : 'var(--text-muted)'} />
+                </div>
+                <h3 className="bento-title">{company.name}</h3>
+                <p className="bento-desc">Full Simulation Pipeline</p>
               </div>
-              <h3 className="bento-title">{company.name}</h3>
-              <p className="bento-desc">Full Simulation Pipeline</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {activeCompany && (
           <div className="role-section animate-fade-in" style={{animationDelay: '0.2s'}}>

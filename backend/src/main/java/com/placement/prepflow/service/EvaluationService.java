@@ -27,11 +27,15 @@ public class EvaluationService {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
+    @org.springframework.transaction.annotation.Transactional
     public Long startSimulation(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+
+        userAttemptRepository.findFirstByUserIdAndRoleIdAndStatus(userId, roleId, "IN_PROGRESS")
+                .ifPresent(userAttemptRepository::delete);
 
         UserAttempt attempt = UserAttempt.builder()
                 .user(user)

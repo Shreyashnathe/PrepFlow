@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface UserAttemptRepository extends JpaRepository<UserAttempt, Long> {
     List<UserAttempt> findByUserId(Long userId);
+    
+    java.util.Optional<UserAttempt> findFirstByUserIdAndRoleIdAndStatus(Long userId, Long roleId, String status);
 }
