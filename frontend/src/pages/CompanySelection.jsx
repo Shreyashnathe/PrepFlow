@@ -53,7 +53,7 @@ const CompanySelection = () => {
 
   const handleLogout = () => {
     logoutUser();
-    navigate('/login');
+    navigate('/');
   };
 
   return (

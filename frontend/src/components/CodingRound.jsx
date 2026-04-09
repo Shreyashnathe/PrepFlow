@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { Terminal, Code, Play, ChevronRight, Check, AlertCircle } from 'lucide-react';
+import Editor from 'react-simple-code-editor';
+import Prism from 'prismjs';
+import 'prismjs/components/prism-java';
+import 'prismjs/themes/prism-tomorrow.css';
 import './RoundStyles.css';
 
 const CodingRound = ({ questions, onSubmit }) => {
@@ -107,12 +111,20 @@ const CodingRound = ({ questions, onSubmit }) => {
           </div>
         </div>
         
-        <textarea 
-          className="code-area" 
-          spellCheck="false"
-          value={answers[activeQId] || "class Solution {\n    public void solve() {\n        // Write your optimized solution here\n        \n    }\n}"}
-          onChange={handleCodeChange}
-        />
+        <div className="neon-editor-wrapper">
+          <Editor
+            value={answers[activeQId] || "class Solution {\n    public void solve() {\n        // Write your optimized solution here\n        \n    }\n}"}
+            onValueChange={code => setAnswers(prev => ({ ...prev, [activeQId]: code }))}
+            highlight={code => Prism.highlight(code, Prism.languages.java, 'java')}
+            padding={24}
+            className="code-area-glass"
+            style={{
+              fontFamily: '"Fira Code", "Courier New", monospace',
+              fontSize: '15px',
+              minHeight: '400px',
+            }}
+          />
+        </div>
 
         {/* Console */}
         <div className="console-wrapper">

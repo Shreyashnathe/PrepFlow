@@ -8,6 +8,7 @@ import SimulationEngine from './pages/SimulationEngine';
 import ResultDashboard from './pages/ResultDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserProfile from './pages/UserProfile';
+import LandingPage from './pages/LandingPage';
 import './index.css';
 
 function App() {
@@ -22,33 +23,39 @@ function App() {
       <Router>
         <div className="orb-1"></div>
         <div className="orb-2"></div>
-        <div className="app-container">
           <Routes>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<div className="app-container"><Login /></div>} />
             <Route path="/home" element={
-              <ProtectedRoute>
-                <CompanySelection />
-              </ProtectedRoute>
+              <div className="app-container">
+                <ProtectedRoute>
+                  <CompanySelection />
+                </ProtectedRoute>
+              </div>
             } />
             <Route path="/simulate" element={
-              <ProtectedRoute>
-                <SimulationEngine />
-              </ProtectedRoute>
+              <div className="app-container">
+                <ProtectedRoute>
+                  <SimulationEngine />
+                </ProtectedRoute>
+              </div>
             } />
             <Route path="/result" element={
-              <ProtectedRoute>
-                <ResultDashboard />
-              </ProtectedRoute>
+              <div className="app-container">
+                <ProtectedRoute>
+                  <ResultDashboard />
+                </ProtectedRoute>
+              </div>
             } />
             <Route path="/profile" element={
-              <ProtectedRoute>
-                <UserProfile />
-              </ProtectedRoute>
+              <div className="app-container">
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              </div>
             } />
-            <Route path="/" element={<Navigate to="/home" />} />
-            <Route path="*" element={<Navigate to="/home" />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
-        </div>
       </Router>
     </AppProvider>
   );

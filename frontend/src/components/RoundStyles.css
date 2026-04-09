@@ -211,19 +211,28 @@
   font-size: 0.85rem;
 }
 
-.code-area {
+.neon-editor-wrapper {
   flex: 1;
-  background: transparent;
+  background: rgba(13, 13, 15, 0.95);
+  overflow-y: auto;
+  position: relative;
+}
+
+.code-area-glass {
+  min-height: 100%;
   color: #e4e4e7;
-  font-family: 'Courier New', monospace;
-  font-size: 1rem;
-  line-height: 1.5;
-  padding: 1.5rem;
-  border: none;
-  resize: none;
   outline: none;
 }
 
+/* Customizing Prism for Neon/Glass Aesthetics */
+code[class*="language-"], pre[class*="language-"] {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.1);
+}
+.token.keyword { color: #c084fc !important; text-shadow: 0 0 8px rgba(192, 132, 252, 0.4); }
+.token.class-name, .token.function { color: #60a5fa !important; text-shadow: 0 0 8px rgba(96, 165, 250, 0.4); }
+.token.string { color: #34d399 !important; text-shadow: 0 0 8px rgba(52, 211, 153, 0.4); }
+.token.comment { color: #6b7280 !important; font-style: italic; }
+.token.operator { color: #fb7185 !important; }
 .console-wrapper {
   height: 200px;
   border-top: var(--border-subtle);

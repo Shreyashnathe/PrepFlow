@@ -36,7 +36,7 @@ const UserProfile = () => {
         </button>
         <button className="btn-secondary" style={{ color: 'var(--danger)', borderColor: 'rgba(239,68,68,0.3)' }} onClick={() => {
             localStorage.clear();
-            navigate('/login');
+            navigate('/');
         }}>
           <LogOut size={16} /> Secure Logout
         </button>
