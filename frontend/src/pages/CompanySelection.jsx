@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchCompanies, fetchRoles, startSimulation } from '../services/api';
 import { useAppContext } from '../context/AppContext';
-import { Briefcase, ChevronRight, Building, LogOut } from 'lucide-react';
+import { Briefcase, ChevronRight, Building, LogOut, User } from 'lucide-react';
 import './CompanySelection.css';
 
 const CompanySelection = () => {
@@ -55,9 +55,14 @@ const CompanySelection = () => {
           <span className="text-subtle">Welcome back,</span>
           <span style={{fontWeight: 600, color: 'var(--text-main)', marginLeft: '6px'}}>{userName || 'Candidate'}</span>
         </div>
-        <button className="btn-secondary nav-logout-btn" onClick={handleLogout}>
-          <LogOut size={16} /> Logout
-        </button>
+        <div style={{display: 'flex', gap: '1rem'}}>
+          <button className="btn-secondary" onClick={() => navigate('/profile')}>
+            <User size={16} /> My Dossier
+          </button>
+          <button className="btn-secondary nav-logout-btn" onClick={handleLogout}>
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
       </div>
 
       <div className="hero-section animate-fade-in">

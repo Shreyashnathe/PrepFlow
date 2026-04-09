@@ -107,30 +107,40 @@ public class EvaluationService {
     }
 
     public AttemptReportDTO getAttemptReport(Long attemptId) {
-        UserAttempt attempt = userAttemptRepository.findById(attemptId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attempt not found"));
+        UserAttempt userAttempt = userAttemptRepository.findById(attemptId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attempt completed or not found"));
 
-        List<RoundAttempt> rounds = roundAttemptRepository.findByUserAttemptId(attemptId);
-        
         Map<String, Double> roundScores = new HashMap<>();
-        for (RoundAttempt ra : rounds) {
+        for (RoundAttempt ra : userAttempt.getRoundAttempts()) {
             roundScores.put(ra.getSimulationRound().getRoundType().name(), ra.getScore());
         }
 
-        String readinessDesc = "NOT READY";
-        if (attempt.getTotalScore() >= 80) readinessDesc = "READY";
-        else if (attempt.getTotalScore() >= 50) readinessDesc = "ALMOST READY";
-
-        String finalFeedback = attempt.getTotalScore() >= 80 ? 
-            "Excellent performance! You demonstrate strong competency. Focus on mock interviews next." : 
-            "Needs improvement. We recommend revising weak concepts and practicing more problems before the actual test.";
+        String readiness = "NOT READY";
+        if (userAttempt.getTotalScore() != null) {
+            if (userAttempt.getTotalScore() > 80) readiness = "READY";
+            else if (userAttempt.getTotalScore() > 60) readiness = "ALMOST READY";
+        }
 
         return AttemptReportDTO.builder()
                 .attemptId(attemptId)
-                .totalScore(attempt.getTotalScore())
-                .readinessLevel(readinessDesc)
+                .totalScore(userAttempt.getTotalScore())
+                .readinessLevel(readiness)
                 .roundScores(roundScores)
-                .overallFeedback(finalFeedback)
+                .overallFeedback("Overall assessment completed. Review modular breakdown for precise feedback on your performance capabilities.")
                 .build();
+    }
+
+    public List<com.placement.prepflow.dto.AttemptHistoryDTO> getUserAttempts(Long userId) {
+        List<UserAttempt> attempts = userAttemptRepository.findByUserId(userId);
+        return attempts.stream().map(a -> com.placement.prepflow.dto.AttemptHistoryDTO.builder()
+                .attemptId(a.getId())
+                .companyName(a.getRole().getCompany().getName())
+                .roleName(a.getRole().getName())
+                .status(a.getStatus())
+                .totalScore(a.getTotalScore())
+                .startedAt(a.getStartedAt())
+                .completedAt(a.getCompletedAt())
+                .build()
+        ).toList();
     }
 }

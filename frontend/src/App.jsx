@@ -7,6 +7,7 @@ import CompanySelection from './pages/CompanySelection';
 import SimulationEngine from './pages/SimulationEngine';
 import ResultDashboard from './pages/ResultDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import UserProfile from './pages/UserProfile';
 import './index.css';
 
 function App() {
@@ -37,6 +38,11 @@ function App() {
             <Route path="/result" element={
               <ProtectedRoute>
                 <ResultDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <UserProfile />
               </ProtectedRoute>
             } />
             <Route path="/" element={<Navigate to="/home" />} />

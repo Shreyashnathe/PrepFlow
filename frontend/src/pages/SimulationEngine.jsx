@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSimulationFlow, fetchQuestionsForRound, submitRound } from '../services/api';
 import { useAppContext } from '../context/AppContext';
-import { Clock, Check, Loader2 } from 'lucide-react';
+import { Clock, Check, Loader2, PlayCircle, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AptitudeRound from '../components/AptitudeRound';
 import CodingRound from '../components/CodingRound';
@@ -17,6 +17,7 @@ const SimulationEngine = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(1800); // 30 minutes default
+  const [sideMenuOpen, setSideMenuOpen] = useState(true);
 
   useEffect(() => {
     if (!selectedRole || !attemptId) {
@@ -44,7 +45,7 @@ const SimulationEngine = () => {
     try {
       const res = await fetchQuestionsForRound(roundId);
       setQuestions(res.data);
-      setTimeLeft(1800); // Reset timer per round
+      setTimeLeft(1800);
     } catch (e) {
       console.error(e);
       toast.error("Failed to load questions");
@@ -87,6 +88,12 @@ const SimulationEngine = () => {
     }
   };
 
+  const quitSimulation = () => {
+    if(window.confirm("Are you sure you want to abort the simulation? Progress will be lost.")) {
+        navigate('/');
+    }
+  }
+
   if (!simulationFlow.length || loading) {
     return (
       <div className="sim-loading-screen">
@@ -99,41 +106,60 @@ const SimulationEngine = () => {
   const currentRound = simulationFlow[currentRoundIndex];
 
   return (
-    <div className="sim-container">
-      {/* Top Navigation Wrapper */}
-      <div className="glass-panel sim-header">
-        <div className="sim-stepper">
+    <div className="sim-grid-layout">
+      
+      {/* Fixed Vertical Sidebar */}
+      <div className={`sim-sidebar ${sideMenuOpen ? 'open' : 'closed'}`}>
+        <div className="sidebar-brand">PrepFlow IDE</div>
+        
+        <div className="sidebar-stepper">
+          <p className="sidebar-heading">Assessment Pipeline</p>
           {simulationFlow.map((round, idx) => (
             <div 
               key={round.id} 
-              className={`sim-step ${idx === currentRoundIndex ? 'active' : idx < currentRoundIndex ? 'completed' : ''}`}
+              className={`sidebar-step ${idx === currentRoundIndex ? 'active' : idx < currentRoundIndex ? 'completed' : 'locked'}`}
             >
-              <div className="step-circle">
-                {idx < currentRoundIndex ? <Check size={14} strokeWidth={3} /> : (idx + 1)}
+              <div className="sidebar-step-icon">
+                {idx < currentRoundIndex ? <Check size={14} strokeWidth={3} /> : (idx === currentRoundIndex ? <PlayCircle size={14} /> : (idx + 1))}
               </div>
-              <span className="step-label">{round.roundType.replace('_', ' ')}</span>
-              {idx < simulationFlow.length - 1 && <div className="step-line" />}
+              <div className="sidebar-step-details">
+                <span className="sidebar-step-title">{round.roundType.replace('_', ' ')}</span>
+                {idx === currentRoundIndex && <span className="sidebar-step-status">IN PROGRESS</span>}
+              </div>
             </div>
           ))}
         </div>
-        
-        <div className={`sim-timer ${timeLeft < 300 ? 'danger' : ''}`}>
-          <Clock size={18} />
-          <span className="timer-text">{formatTime(timeLeft)}</span>
+
+        <div className="sidebar-footer">
+          <button className="sidebar-abort-btn" onClick={quitSimulation}>
+             <LogOut size={16}/> Abort Run
+          </button>
         </div>
       </div>
 
-      {/* Dynamic Module Loader */}
-      <div className="sim-module-wrapper">
-        {(currentRound.roundType === 'APTITUDE' || currentRound.roundType === 'TECHNICAL_INTERVIEW') && (
-          <AptitudeRound questions={questions} onSubmit={handleRoundSubmit} roundType={currentRound.roundType} />
-        )}
-        {currentRound.roundType === 'CODING' && (
-          <CodingRound questions={questions} onSubmit={handleRoundSubmit} />
-        )}
-        {currentRound.roundType === 'HR_INTERVIEW' && (
-          <HRRound questions={questions} onSubmit={handleRoundSubmit} />
-        )}
+      {/* Main IDE Right Canvas */}
+      <div className="sim-main-canvas">
+        
+        <div className="sim-topbar">
+          <h2 className="sim-round-heading">{currentRound.roundType.replace('_', ' ')} Phase</h2>
+          <div className={`sim-timer ${timeLeft < 300 ? 'danger' : ''}`}>
+            <Clock size={16} />
+            <span className="timer-text">{formatTime(timeLeft)}</span>
+          </div>
+        </div>
+
+        <div className="sim-module-wrapper">
+          {(currentRound.roundType === 'APTITUDE' || currentRound.roundType === 'TECHNICAL_INTERVIEW') && (
+            <AptitudeRound questions={questions} onSubmit={handleRoundSubmit} roundType={currentRound.roundType} />
+          )}
+          {currentRound.roundType === 'CODING' && (
+             <CodingRound questions={questions} onSubmit={handleRoundSubmit} />
+          )}
+          {currentRound.roundType === 'HR_INTERVIEW' && (
+             <HRRound questions={questions} onSubmit={handleRoundSubmit} />
+          )}
+        </div>
+
       </div>
     </div>
   );

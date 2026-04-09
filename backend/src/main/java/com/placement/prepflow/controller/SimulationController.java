@@ -52,4 +52,11 @@ public class SimulationController {
     public ResponseEntity<AttemptReportDTO> getAttemptReport(@PathVariable Long attemptId) {
         return ResponseEntity.ok(evaluationService.getAttemptReport(attemptId));
     }
+
+    @GetMapping("/attempts/me")
+    public ResponseEntity<List<com.placement.prepflow.dto.AttemptHistoryDTO>> getMyAttempts(java.security.Principal principal) {
+        com.placement.prepflow.entity.User user = userRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new com.placement.prepflow.exception.ResourceNotFoundException("User not found"));
+        return ResponseEntity.ok(evaluationService.getUserAttempts(user.getId()));
+    }
 }

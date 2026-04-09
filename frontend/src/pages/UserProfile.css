@@ -1,0 +1,81 @@
+/* User Profile Styles */
+.profile-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profile-header-strip {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.avatar-orb {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+}
+
+.logs-panel {
+  padding: 2.5rem;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.panel-heading h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.empty-logs {
+  background: rgba(0,0,0,0.2);
+  border: 1px dashed rgba(255,255,255,0.1);
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.profile-table td {
+  padding: 1.2rem 1.5rem !important;
+}
+
+.status-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.COMPLETED {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.status-badge.IN_PROGRESS {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.text-small {
+  font-size: 0.85rem;
+}
