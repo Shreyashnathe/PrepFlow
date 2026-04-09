@@ -28,9 +28,8 @@ public class DataSeeder {
     @Bean
     public CommandLineRunner initData() {
         return args -> {
-            if (companyRepository.count() > 0) {
-                return; // already seeded
-            }
+            boolean initialSeedDone = companyRepository.count() > 0;
+            if (!initialSeedDone) {
 
             // 1. User
             User user = User.builder()
@@ -116,6 +115,29 @@ public class DataSeeder {
             String tcsTechOpts2 = "[\"SELECT\", \"INSERT\", \"UPDATE\", \"ROLLBACK\"]";
             Question tcsTechQ2 = Question.builder().questionText("Which of the following SQL commands is part of DML (Data Manipulation Language)?").options(tcsTechOpts2).expectedAnswer("INSERT").difficulty("Easy").simulationRound(tcsTech).build();
             questionRepository.saveAll(List.of(tcsTechQ1, tcsTechQ2));
+            }
+
+            java.util.List<String> companyNames = java.util.Arrays.asList(
+                "BMC Softwares", "Siemens", "Tiaa India", "Tracelink", "Deutsche Bank", 
+                "UBS", "PhonePe", "BNY Mellon", "Druva", "Mastercard", "UptiQ", 
+                "Avaya", "Altometa", "Schlumberger", "Bajaj Finserv", "Barclays", 
+                "Ion", "Toshiba", "Adobe", "Ideas", "Searce", "eQ Technologies", 
+                "JPMC", "Dragonfly Financial Technologies", "Energy Exemplar", 
+                "Metro-GSC", "ISS", "E2Open", "ACA Group", "Merilytics", 
+                "General Mills", "Wissen Technology", "Flextrade", "Altizon", 
+                "Tech Verito", "Intangles Lab", "HSBC", "Northern Trust", 
+                "Emerson", "ZS Associates", "Rockwell Automation", "Ayaan Autonomous", 
+                "Amdocs", "TCS R&D", "Qualys"
+            );
+
+            for (String name : companyNames) {
+                if (companyRepository.findByName(name).isEmpty()) {
+                    Company company = Company.builder().name(name).build();
+                    company = companyRepository.save(company);
+                    Role defaultRole = Role.builder().name("Software Development Engineer").company(company).build();
+                    roleRepository.save(defaultRole);
+                }
+            }
         };
     }
 }

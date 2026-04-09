@@ -7,7 +7,7 @@
 }
 
 .sim-sidebar {
-  width: 280px;
+  width: 220px;
   background: #09090b;
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
@@ -142,19 +142,20 @@
   height: 100vh;
   position: relative;
   background: #0f0f13;
+  min-width: 0;
 }
 
 .sim-topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 3rem;
+  padding: 0.8rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   background: #09090b;
 }
 
 .sim-round-heading {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #fff;
 }
@@ -162,11 +163,11 @@
 .sim-timer {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.5rem;
   background: rgba(59, 130, 246, 0.1);
   border: 1px solid rgba(59, 130, 246, 0.3);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
   color: var(--primary);
   transition: var(--transition);
 }
@@ -179,7 +180,7 @@
 }
 
 .timer-text {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: 1px;
@@ -187,10 +188,11 @@
 
 .sim-module-wrapper {
   flex: 1;
-  padding: 2rem 3rem;
+  padding: 0.8rem 1.5rem;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* Spinner */

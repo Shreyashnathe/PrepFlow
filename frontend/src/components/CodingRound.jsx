@@ -28,13 +28,81 @@ const CodingRound = ({ questions, onSubmit }) => {
     }
   }
 
-  const handleRun = () => {
+  const parseTestCase = (tcStr) => {
+    let inputStr = tcStr;
+    let outputStr = '';
+    
+    const inputMatch = tcStr.match(/Input:\s*(.*?)(?=Output:|$)/is);
+    const outputMatch = tcStr.match(/Output:\s*(.*)/is);
+    
+    if (inputMatch && inputMatch[1]) {
+        inputStr = inputMatch[1].trim();
+    }
+    if (outputMatch && outputMatch[1]) {
+        outputStr = outputMatch[1].trim();
+    }
+    
+    return { input: inputStr, output: outputStr };
+  };
+
+  const handleRun = async () => {
     setRunning(true);
-    setRunResult('');
-    setTimeout(() => {
-      setRunning(false);
-      setRunResult(`Execution Successful.\nOutput matches hidden test cases.\n\nTime: ${Math.floor(Math.random() * 40) + 15}ms\nMemory: 2.1MB\nCPU: 1.2%`);
-    }, 1200);
+    setRunResult('Initializing execution engine...\n');
+    
+    const code = answers[activeQId] || defaultCode[language];
+    let resultsLog = "";
+    let passes = 0;
+    
+    const casesToRun = (parsedDesc.testcases && parsedDesc.testcases.length > 0) 
+        ? parsedDesc.testcases 
+        : ["Input:\nOutput:"]; // Fallback if empty testcase formatting
+        
+    for(let i = 0; i < casesToRun.length; i++) {
+        const parsedTC = parseTestCase(casesToRun[i]);
+        setRunResult(prev => prev + `Running Testcase ${i+1}...\n`);
+        
+        let pistonLang = language;
+        if (language === 'cpp') pistonLang = 'c++';
+        
+        try {
+            const response = await fetch('https://emkc.org/api/v2/piston/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language: pistonLang,
+                    version: "*",
+                    files: [{ content: code }],
+                    stdin: parsedTC.input
+                })
+            });
+            const data = await response.json();
+            
+            const output = data.run?.stdout ? data.run.stdout.trim() : (data.run?.stderr ? data.run.stderr.trim() : '');
+            
+            if (data.compile && data.compile.code !== 0) {
+                 resultsLog += `------------------------\n[Testcase ${i+1}] Compilation Error:\n${data.compile.stderr}\n\n`;
+                 break; 
+            }
+            
+            if (parsedTC.output) {
+                if(output === parsedTC.output) {
+                    resultsLog += `[Testcase ${i+1}] Passed ✅\n`;
+                    passes++;
+                } else {
+                     resultsLog += `------------------------\n[Testcase ${i+1}] Failed ❌\nExpected:\n${parsedTC.output}\nGot:\n${output}\n\n`;
+                }
+            } else {
+                 resultsLog += `------------------------\n[Testcase ${i+1}] Executed.\nOutput:\n${output}\n\n`;
+                 passes++; 
+            }
+            
+        } catch(e) {
+            resultsLog += `------------------------\n[Testcase ${i+1}] Execution Interface Error: ${e.message}\n\n`;
+        }
+    }
+    
+    setRunResult(`Execution Complete. Passed (${passes}/${casesToRun.length})\n\n` + resultsLog);
+    setRunning(false);
   };
 
   const handleSubmit = () => {
@@ -130,7 +198,7 @@ const CodingRound = ({ questions, onSubmit }) => {
             onChange={code => setAnswers(prev => ({ ...prev, [activeQId]: code }))}
             options={{
               minimap: { enabled: false },
-              fontSize: 14,
+              fontSize: 13,
               fontFamily: '"JetBrains Mono", "Fira Code", monospace',
               lineHeight: 24,
               padding: { top: 16 },

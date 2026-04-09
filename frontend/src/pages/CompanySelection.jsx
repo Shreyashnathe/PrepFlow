@@ -25,24 +25,20 @@ const CompanySelection = () => {
     });
   }, []);
 
-  const handleCompanySelect = async (company) => {
-    setActiveCompany(company);
+  const handleQuickStart = async (company) => {
+    setLoading(true);
     setSelectedCompany(company);
     try {
-      const res = await fetchRoles(company.id);
-      setRoles(res.data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleStartProcess = async (role) => {
-    setLoading(true);
-    setSelectedRole(role);
-    try {
-      const res = await startSimulation(role.id);
-      setAttemptId(res.data);
-      navigate('/simulate');
+      const roleRes = await fetchRoles(company.id);
+      if (roleRes.data && roleRes.data.length > 0) {
+        const targetRole = roleRes.data[0];
+        setSelectedRole(targetRole);
+        const simRes = await startSimulation(targetRole.id);
+        setAttemptId(simRes.data);
+        navigate('/simulate');
+      } else {
+        alert("No deployment roles configured for this architecture.");
+      }
     } catch (e) {
       console.error(e);
       alert("Error starting simulation. Are you logged in?");
@@ -90,51 +86,29 @@ const CompanySelection = () => {
         ) : (
           <div className="bento-grid animate-fade-in" style={{animationDelay: '0.1s'}}>
             {companies.map(company => (
-              <div 
-                key={company.id} 
-                className={`glass-panel bento-card ${activeCompany?.id === company.id ? 'active' : ''}`}
-                onClick={() => handleCompanySelect(company)}
-              >
+              <div key={company.id} className="glass-panel bento-card">
                 <div className="bento-icon">
-                  <Building size={28} color={activeCompany?.id === company.id ? '#60a5fa' : 'var(--text-muted)'} />
+                  <Building size={24} color="var(--primary)" />
                 </div>
                 <h3 className="bento-title">{company.name}</h3>
-                <p className="bento-desc">Full Simulation Pipeline</p>
+                
+                <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p className="bento-desc" style={{ fontSize: '0.8rem', margin: 0 }}>Full Pipeline</p>
+                  <button 
+                    className="btn-primary" 
+                    style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem', borderRadius: '4px' }}
+                    onClick={(e) => { e.stopPropagation(); handleQuickStart(company); }}
+                    disabled={loading}
+                  >
+                    Deploy <ChevronRight size={14} style={{ marginLeft: '2px' }}/>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
 
-        {activeCompany && (
-          <div className="role-section animate-fade-in" style={{animationDelay: '0.2s'}}>
-            <div className="cs-header-wrap" style={{marginTop: '3rem'}}>
-              <h2 className="cs-section-title">2. Role Designation</h2>
-            </div>
-            
-            <div className="role-grid">
-              {roles.map(role => (
-                <div key={role.id} className="glass-panel role-card">
-                  <div className="role-info">
-                    <div className="role-icon">
-                      <Briefcase size={20} color="var(--text-main)" />
-                    </div>
-                    <div>
-                      <h3 className="role-name">{role.name}</h3>
-                      <span className="text-subtle" style={{fontSize: '0.9rem'}}>{activeCompany.name}</span>
-                    </div>
-                  </div>
-                  <button 
-                    className="btn-primary" 
-                    onClick={() => handleStartProcess(role)}
-                    disabled={loading}
-                  >
-                    {loading ? 'Initializing...' : 'Deploy Engine'} <ChevronRight size={18} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );
